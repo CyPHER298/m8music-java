@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: music-api
+  profiles:
+    active: oracle
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:${spring.application.name}-db # Facilitando o seu uso professor!
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  flyway:
+    enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: oracle
+  datasource:
+    url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: rm99742
+    password: 290305
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+api:
+  security:
+    token:
+      secret: oi
+
+secret: oi
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      m8music-api:
+        minimumNumberOfCalls: 4
+        slidingWindowSize: 8
+  retry:
+    instances:
+      m8music-api:
+        exponential-backoff-multiplier: 2
+        enable-exponential-backoff: false
+        wait-duration: 5s
+        max-attempts: 2
